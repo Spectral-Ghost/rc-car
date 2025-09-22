@@ -1,86 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>RC Robot Control</title>
-<style>
-body { font-family: Arial; text-align: center; margin-top: 50px; }
-button { width: 80px; height: 60px; font-size: 24px; margin: 5px; }
-input[type=range] { width: 300px; margin-top: 20px; }
-</style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
-</head>
-<body>
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-<h1>RC Robot Control</h1>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",
+    authDomain: "rccar-2b355.firebaseapp.com",
+    databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rccar-2b355",
+    storageBucket: "rccar-2b355.firebasestorage.app",
+    messagingSenderId: "505701251853",
+    appId: "1:505701251853:web:de2fbbd641e33dfd348e44"
+  };
 
-<!-- Arrow Buttons -->
-<div style="display:inline-block; text-align:center; margin-top:30px;">
-  <div>
-    <button id="btnForward">↑</button>
-  </div>
-  <div>
-    <button id="btnLeft">←</button>
-    <button id="btnStop">■</button>
-    <button id="btnRight">→</button>
-  </div>
-  <div>
-    <button id="btnBackward">↓</button>
-  </div>
-</div>
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-<!-- Speed Slider -->
-<div style="margin-top:20px;">
-  <label for="speedRange">Speed:</label><br>
-  <input type="range" id="speedRange" min="50" max="255" value="" oninput="updateSpeed(this.value)">
-  <span id="speedValue">150</span>
-</div>
+  let speed = 150;
 
-<script>
-const firebaseConfig = {
-  apiKey: "const firebaseConfig = {   apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",   authDomain: "rccar-2b355.firebaseapp.com",   databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",   projectId: "rccar-2b355",   storageBucket: "rccar-2b355.firebasestorage.app",   messagingSenderId: "505701251853",   appId: "1:505701251853:web:de2fbbd641e33dfd348e44"",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  // Update speed from slider
+  function updateSpeed(val){
+    speed = val;
+    document.getElementById('speedValue').innerText = val;
+    set(ref(db, '/speed'), val);
+  }
 
-let speed = 150;
+  // Send command to Firebase
+  function sendCommand(cmd){
+    set(ref(db, '/command'), cmd);
+  }
 
-// Update speed from slider
-function updateSpeed(val){
-  speed = val;
-  document.getElementById('speedValue').innerText = val;
-  db.ref('/speed').set(val);
-}
+  function stopCommand(){
+    set(ref(db, '/command'), "");
+  }
 
-// Send command to Firebase
-function sendCommand(cmd){ db.ref('/command').set(cmd); }
-function stopCommand(){ db.ref('/command').set(""); }
+  // Hold button functionality
+  function holdButton(buttonId, command){
+    const btn = document.getElementById(buttonId);
+    btn.addEventListener('mousedown', ()=>sendCommand(command));
+    btn.addEventListener('mouseup', stopCommand);
+    btn.addEventListener('mouseleave', stopCommand);
+    btn.addEventListener('touchstart', ()=>sendCommand(command));
+    btn.addEventListener('touchend', stopCommand);
+  }
 
-// Buttons hold functionality
-function holdButton(buttonId, command){
-  const btn = document.getElementById(buttonId);
-  btn.addEventListener('mousedown', ()=>sendCommand(command));
-  btn.addEventListener('mouseup', stopCommand);
-  btn.addEventListener('mouseleave', stopCommand);
-  // For mobile
-  btn.addEventListener('touchstart', ()=>sendCommand(command));
-  btn.addEventListener('touchend', stopCommand);
-}
-
-// Assign commands
-holdButton('btnForward', 'forward');
-holdButton('btnBackward', 'backward');
-holdButton('btnLeft', 'left');
-holdButton('btnRight', 'right');
-holdButton('btnStop', 'stop');
+  // Assign buttons
+  holdButton('btnForward', 'forward');
+  holdButton('btnBackward', 'backward');
+  holdButton('btnLeft', 'left');
+  holdButton('btnRight', 'right');
+  holdButton('btnStop', 'stop');
 </script>
-</body>
-</html>

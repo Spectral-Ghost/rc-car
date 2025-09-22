@@ -1,48 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>RC Robot Control</title>
-  <style>
-    body { font-family: Arial; text-align: center; margin-top: 50px; }
-    button { width: 120px; height: 60px; font-size: 18px; margin: 5px; }
-    input[type=range] { width: 300px; margin-top: 20px; }
-  </style>
+<meta charset="UTF-8">
+<title>RC Robot Control</title>
+<style>
+body { font-family: Arial; text-align: center; margin-top: 50px; }
+button { width: 80px; height: 60px; font-size: 24px; margin: 5px; }
+input[type=range] { width: 300px; margin-top: 20px; }
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 </head>
 <body>
-  <h1>RC Robot Control</h1>
 
-  <!-- Movement Buttons -->
+<h1>RC Robot Control</h1>
+
+<!-- Arrow Buttons -->
+<div style="display:inline-block; text-align:center; margin-top:30px;">
   <div>
-    <button onclick="sendCommand('forward')">Forward</button><br>
-    <button onclick="sendCommand('left')">Left</button>
-    <button onclick="sendCommand('stop')">Stop</button>
-    <button onclick="sendCommand('right')">Right</button><br>
-    <button onclick="sendCommand('backward')">Backward</button>
+    <button id="btnForward">↑</button>
   </div>
-
-  <!-- Speed Slider -->
   <div>
-    <label for="speedRange">Speed:</label><br>
-    <input type="range" id="speedRange" min="50" max="255" value="150" oninput="updateSpeed(this.value)">
-    <span id="speedValue">150</span>
+    <button id="btnLeft">←</button>
+    <button id="btnStop">■</button>
+    <button id="btnRight">→</button>
   </div>
+  <div>
+    <button id="btnBackward">↓</button>
+  </div>
+</div>
 
-  <script>
-    // Replace with your ESP32 IP if not on same page hosting
-    const ESP32_IP = 192.168.68.70; // works if served from ESP32
+<!-- Speed Slider -->
+<div style="margin-top:20px;">
+  <label for="speedRange">Speed:</label><br>
+  <input type="range" id="speedRange" min="50" max="255" value="" oninput="updateSpeed(this.value)">
+  <span id="speedValue">150</span>
+</div>
 
-    function sendCommand(cmd) {
-      // append speed value for forward/backward/turns if needed
-      fetch(`http://${ESP32_IP}/${cmd}?speed=${document.getElementById('speedRange').value}`)
-        .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(err => console.error('Error:', err));
-    }
+<script>
+const firebaseConfig = {
+  apiKey: "const firebaseConfig = {   apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",   authDomain: "rccar-2b355.firebaseapp.com",   databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",   projectId: "rccar-2b355",   storageBucket: "rccar-2b355.firebasestorage.app",   messagingSenderId: "505701251853",   appId: "1:505701251853:web:de2fbbd641e33dfd348e44"",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    function updateSpeed(value) {
-      document.getElementById('speedValue').innerText = value;
-    }
-  </script>
+let speed = 150;
+
+// Update speed from slider
+function updateSpeed(val){
+  speed = val;
+  document.getElementById('speedValue').innerText = val;
+  db.ref('/speed').set(val);
+}
+
+// Send command to Firebase
+function sendCommand(cmd){ db.ref('/command').set(cmd); }
+function stopCommand(){ db.ref('/command').set(""); }
+
+// Buttons hold functionality
+function holdButton(buttonId, command){
+  const btn = document.getElementById(buttonId);
+  btn.addEventListener('mousedown', ()=>sendCommand(command));
+  btn.addEventListener('mouseup', stopCommand);
+  btn.addEventListener('mouseleave', stopCommand);
+  // For mobile
+  btn.addEventListener('touchstart', ()=>sendCommand(command));
+  btn.addEventListener('touchend', stopCommand);
+}
+
+// Assign commands
+holdButton('btnForward', 'forward');
+holdButton('btnBackward', 'backward');
+holdButton('btnLeft', 'left');
+holdButton('btnRight', 'right');
+holdButton('btnStop', 'stop');
+</script>
 </body>
 </html>

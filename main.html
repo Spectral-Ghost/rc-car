@@ -8,6 +8,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",
   authDomain: "rccar-2b355.firebaseapp.com",
@@ -26,21 +27,19 @@ let currentCommand = "";
 function sendCommand(cmd) {
   if(currentCommand !== cmd){
     currentCommand = cmd;
-    set(ref(db, '/command'), cmd)
-      .catch(err => console.error("Firebase set /command error:", err));
+    set(ref(db, '/command'), cmd).catch(err => console.error(err));
   }
 }
 
 function releaseCommand() {
   currentCommand = "";
-  set(ref(db, '/command'), "")
-    .catch(err => console.error("Firebase set /command error:", err));
+  set(ref(db, '/command'), "").catch(err => console.error(err));
 }
 
 function sendSpeed() {
   const speed = parseInt(document.getElementById("speedSlider").value);
-  set(ref(db, '/speed'), speed)
-    .catch(err => console.error("Firebase set /speed error:", err));
+  document.getElementById("speedValue").innerText = speed;
+  set(ref(db, '/speed'), speed).catch(err => console.error(err));
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -55,6 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById("speedSlider").addEventListener("input", sendSpeed);
+  sendSpeed(); // initialize displayed value
 });
 </script>
 <style>
@@ -76,8 +76,8 @@ button { width:100px; height:60px; margin:10px; font-size:18px; cursor:pointer; 
   <button id="right">Right</button>
 </div>
 
-<div>
-  <label for="speedSlider">Speed:</label>
+<div style="margin-top:20px;">
+  <label for="speedSlider">Speed: <span id="speedValue">150</span></label><br>
   <input type="range" id="speedSlider" min="50" max="255" value="150">
 </div>
 

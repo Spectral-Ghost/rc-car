@@ -5,70 +5,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RC Car Control</title>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",
-    authDomain: "rccar-2b355.firebaseapp.com",
-    databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "rccar-2b355",
-    storageBucket: "rccar-2b355.appspot.com",
-    messagingSenderId: "505701251853",
-    appId: "1:505701251853:web:de2fbbd641e33dfd348e44"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",
+  authDomain: "rccar-2b355.firebaseapp.com",
+  databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rccar-2b355",
+  storageBucket: "rccar-2b355.appspot.com",
+  messagingSenderId: "505701251853",
+  appId: "1:505701251853:web:de2fbbd641e33dfd348e44"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  let currentCommand = "";
+let currentCommand = "";
 
-  function sendCommand(cmd) {
-    if(currentCommand !== cmd){
-      currentCommand = cmd;
-      set(ref(db, '/command'), cmd);
-    }
+function sendCommand(cmd) {
+  if(currentCommand !== cmd){
+    currentCommand = cmd;
+    set(ref(db, '/command'), cmd);
   }
+}
 
-  function releaseCommand() {
-    currentCommand = "";
-    set(ref(db, '/command'), "");
-  }
+function releaseCommand() {
+  currentCommand = "";
+  set(ref(db, '/command'), "");
+}
 
-  function sendSpeed() {
-    const speed = parseInt(document.getElementById("speedSlider").value);
-    set(ref(db, '/speed'), speed);
-  }
+function sendSpeed() {
+  const speed = parseInt(document.getElementById("speedSlider").value);
+  set(ref(db, '/speed'), speed);
+}
 
-  // Event listeners
-  window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById("forward").addEventListener("mousedown", () => sendCommand("forward"));
-    document.getElementById("forward").addEventListener("mouseup", releaseCommand);
-    document.getElementById("backward").addEventListener("mousedown", () => sendCommand("backward"));
-    document.getElementById("backward").addEventListener("mouseup", releaseCommand);
-    document.getElementById("left").addEventListener("mousedown", () => sendCommand("left"));
-    document.getElementById("left").addEventListener("mouseup", releaseCommand);
-    document.getElementById("right").addEventListener("mousedown", () => sendCommand("right"));
-    document.getElementById("right").addEventListener("mouseup", releaseCommand);
-
-    document.getElementById("speedSlider").addEventListener("input", sendSpeed);
+window.addEventListener('DOMContentLoaded', () => {
+  const buttons = ["forward", "backward", "left", "right"];
+  buttons.forEach(id => {
+    const btn = document.getElementById(id);
+    btn.addEventListener("mousedown", () => sendCommand(id));
+    btn.addEventListener("mouseup", releaseCommand);
+    btn.addEventListener("touchstart", (e) => { e.preventDefault(); sendCommand(id); });
+    btn.addEventListener("touchend", releaseCommand);
   });
+
+  document.getElementById("speedSlider").addEventListener("input", sendSpeed);
+});
 </script>
 <style>
-  button { width:100px; height:100px; margin:10px; font-size:16px; }
-  #controls { display:flex; flex-wrap:wrap; justify-content:center; }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0; padding: 20px;
+    background: #f0f0f0;
+  }
+  h1 { margin-bottom: 20px; }
+  #controls {
+    display: grid;
+    grid-template-columns: 100px 100px 100px;
+    grid-template-rows: 100px 100px;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  button {
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  button:active { background: #388E3C; }
+  #speedContainer {
+    margin-top: 10px;
+  }
+  input[type="range"] {
+    width: 300px;
+  }
 </style>
 </head>
 <body>
 <h1>RC Car Control</h1>
 <div id="controls">
+  <div></div>
   <button id="forward">Forward</button>
-  <button id="backward">Backward</button>
+  <div></div>
   <button id="left">Left</button>
+  <button id="backward">Backward</button>
   <button id="right">Right</button>
 </div>
-<br>
-<label for="speedSlider">Speed:</label>
-<input type="range" id="speedSlider" min="50" max="255" value="150">
+<div id="speedContainer">
+  <label for="speedSlider">Speed:</label>
+  <input type="range" id="speedSlider" min="50" max="255" value="150">
+</div>
 </body>
 </html>

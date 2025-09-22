@@ -26,26 +26,30 @@ let currentCommand = "";
 function sendCommand(cmd) {
   if(currentCommand !== cmd){
     currentCommand = cmd;
-    set(ref(db, '/command'), cmd);
+    set(ref(db, '/command'), cmd)
+      .catch(err => console.error("Firebase set /command error:", err));
   }
 }
 
 function releaseCommand() {
   currentCommand = "";
-  set(ref(db, '/command'), "");
+  set(ref(db, '/command'), "")
+    .catch(err => console.error("Firebase set /command error:", err));
 }
 
 function sendSpeed() {
   const speed = parseInt(document.getElementById("speedSlider").value);
-  set(ref(db, '/speed'), speed);
+  set(ref(db, '/speed'), speed)
+    .catch(err => console.error("Firebase set /speed error:", err));
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const buttons = ["forward", "backward", "left", "right"];
+  const buttons = ["forward","backward","left","right"];
   buttons.forEach(id => {
     const btn = document.getElementById(id);
     btn.addEventListener("mousedown", () => sendCommand(id));
     btn.addEventListener("mouseup", releaseCommand);
+    btn.addEventListener("mouseleave", releaseCommand);
     btn.addEventListener("touchstart", (e) => { e.preventDefault(); sendCommand(id); });
     btn.addEventListener("touchend", releaseCommand);
   });
@@ -54,54 +58,28 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0; padding: 20px;
-    background: #f0f0f0;
-  }
-  h1 { margin-bottom: 20px; }
-  #controls {
-    display: grid;
-    grid-template-columns: 100px 100px 100px;
-    grid-template-rows: 100px 100px;
-    gap: 15px;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  button {
-    font-size: 16px;
-    border: none;
-    border-radius: 10px;
-    background: #4CAF50;
-    color: white;
-    cursor: pointer;
-    user-select: none;
-    touch-action: manipulation;
-  }
-  button:active { background: #388E3C; }
-  #speedContainer {
-    margin-top: 10px;
-  }
-  input[type="range"] {
-    width: 300px;
-  }
+body { font-family: sans-serif; text-align:center; padding:20px; }
+button { width:100px; height:60px; margin:10px; font-size:18px; cursor:pointer; }
+#speedSlider { width:200px; margin-top:20px; }
 </style>
 </head>
 <body>
-<h1>RC Car Control</h1>
-<div id="controls">
-  <div></div>
+
+<h2>RC Car Control</h2>
+
+<div>
   <button id="forward">Forward</button>
-  <div></div>
+</div>
+<div>
   <button id="left">Left</button>
   <button id="backward">Backward</button>
   <button id="right">Right</button>
 </div>
-<div id="speedContainer">
+
+<div>
   <label for="speedSlider">Speed:</label>
   <input type="range" id="speedSlider" min="50" max="255" value="150">
 </div>
+
 </body>
 </html>

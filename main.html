@@ -1,56 +1,79 @@
-<!-- Firebase SDKs -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>RC Robot Control</title>
+<style>
+body { font-family: Arial; text-align: center; margin-top: 50px; }
+button { width: 80px; height: 60px; font-size: 24px; margin: 5px; }
+input[type=range] { width: 300px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>RC Robot Control</h1>
+
+<div style="display:inline-block; text-align:center; margin-top:30px;">
+  <div><button id="btnForward">↑</button></div>
+  <div>
+    <button id="btnLeft">←</button>
+    <button id="btnStop">■</button>
+    <button id="btnRight">→</button>
+  </div>
+  <div><button id="btnBackward">↓</button></div>
+</div>
+
+<div style="margin-top:20px;">
+  <label for="speedRange">Speed:</label><br>
+  <input type="range" id="speedRange" min="50" max="255" value="">
+  <span id="speedValue">150</span>
+</div>
+
 <script type="module">
-  // Import the functions you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-  // Your Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",
-    authDomain: "rccar-2b355.firebaseapp.com",
-    databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "rccar-2b355",
-    storageBucket: "rccar-2b355.firebasestorage.app",
-    messagingSenderId: "505701251853",
-    appId: "1:505701251853:web:de2fbbd641e33dfd348e44"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyB79wb5DsH69pOQw35Nk2hg96_Xz0mEfWY",
+  authDomain: "rccar-2b355.firebaseapp.com",
+  databaseURL: "https://rccar-2b355-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rccar-2b355",
+  storageBucket: "rccar-2b355.firebasestorage.app",
+  messagingSenderId: "505701251853",
+  appId: "1:505701251853:web:de2fbbd641e33dfd348e44"
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  let speed = 150;
+let speed = 150;
 
-  // Update speed from slider
-  function updateSpeed(val){
-    speed = val;
-    document.getElementById('speedValue').innerText = val;
-    set(ref(db, '/speed'), val);
-  }
+function updateSpeed(val){
+  speed = val;
+  document.getElementById('speedValue').innerText = val;
+  set(ref(db, '/speed'), val);
+}
 
-  // Send command to Firebase
-  function sendCommand(cmd){
-    set(ref(db, '/command'), cmd);
-  }
+function sendCommand(cmd){ set(ref(db, '/command'), cmd); }
+function stopCommand(){ set(ref(db, '/command'), ""); }
 
-  function stopCommand(){
-    set(ref(db, '/command'), "");
-  }
+function holdButton(buttonId, command){
+  const btn = document.getElementById(buttonId);
+  btn.addEventListener('mousedown', ()=>sendCommand(command));
+  btn.addEventListener('mouseup', stopCommand);
+  btn.addEventListener('mouseleave', stopCommand);
+  btn.addEventListener('touchstart', ()=>sendCommand(command));
+  btn.addEventListener('touchend', stopCommand);
+}
 
-  // Hold button functionality
-  function holdButton(buttonId, command){
-    const btn = document.getElementById(buttonId);
-    btn.addEventListener('mousedown', ()=>sendCommand(command));
-    btn.addEventListener('mouseup', stopCommand);
-    btn.addEventListener('mouseleave', stopCommand);
-    btn.addEventListener('touchstart', ()=>sendCommand(command));
-    btn.addEventListener('touchend', stopCommand);
-  }
+holdButton('btnForward', 'forward');
+holdButton('btnBackward', 'backward');
+holdButton('btnLeft', 'left');
+holdButton('btnRight', 'right');
+holdButton('btnStop', 'stop');
 
-  // Assign buttons
-  holdButton('btnForward', 'forward');
-  holdButton('btnBackward', 'backward');
-  holdButton('btnLeft', 'left');
-  holdButton('btnRight', 'right');
-  holdButton('btnStop', 'stop');
+document.getElementById('speedRange').addEventListener('input', (e)=>updateSpeed(e.target.value));
 </script>
+
+</body>
+</html>

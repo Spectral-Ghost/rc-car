@@ -25,7 +25,7 @@ input[type=range] { width: 300px; margin-top: 20px; }
 
 <div style="margin-top:20px;">
   <label for="speedRange">Speed:</label><br>
-  <input type="range" id="speedRange" min="50" max="255" value="">
+  <input type="range" id="speedRange" min="50" max="255" value="150">
   <span id="speedValue">150</span>
 </div>
 
@@ -49,9 +49,9 @@ const db = getDatabase(app);
 let speed = 150;
 
 function updateSpeed(val){
-  speed = val;
-  document.getElementById('speedValue').innerText = val;
-  set(ref(db, '/speed'), val);
+  speed = parseInt(val); // convert string to number
+  document.getElementById('speedValue').innerText = speed;
+  set(ref(db, '/speed'), speed);
 }
 
 function sendCommand(cmd){ set(ref(db, '/command'), cmd); }
@@ -73,6 +73,9 @@ holdButton('btnRight', 'right');
 holdButton('btnStop', 'stop');
 
 document.getElementById('speedRange').addEventListener('input', (e)=>updateSpeed(e.target.value));
+
+// initialize speed display
+updateSpeed(document.getElementById('speedRange').value);
 </script>
 
 </body>

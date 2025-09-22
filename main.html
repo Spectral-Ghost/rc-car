@@ -16,9 +16,9 @@ input[type=range] { width: 300px; margin-top: 20px; }
 <div style="display:inline-block; text-align:center; margin-top:30px;">
   <div><button id="btnForward">↑</button></div>
   <div>
-    <button id="btnLeft">←</button>
+    <button id="btnRight">←</button> <!-- swapped -->
     <button id="btnStop">■</button>
-    <button id="btnRight">→</button>
+    <button id="btnLeft">→</button> <!-- swapped -->
   </div>
   <div><button id="btnBackward">↓</button></div>
 </div>
@@ -66,10 +66,11 @@ function holdButton(buttonId, command){
   btn.addEventListener('touchend', stopCommand);
 }
 
+// Buttons with corrected left/right commands
 holdButton('btnForward', 'forward');
 holdButton('btnBackward', 'backward');
-holdButton('btnLeft', 'left');
-holdButton('btnRight', 'right');
+holdButton('btnLeft', 'left');   // now correctly sends "left"
+holdButton('btnRight', 'right'); // now correctly sends "right"
 holdButton('btnStop', 'stop');
 
 document.getElementById('speedRange').addEventListener('input', (e)=>updateSpeed(e.target.value));

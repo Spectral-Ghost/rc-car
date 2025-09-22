@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>RC Robot Control</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    button { width: 120px; height: 60px; font-size: 18px; margin: 5px; }
+    input[type=range] { width: 300px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>RC Robot Control</h1>
+
+  <!-- Movement Buttons -->
+  <div>
+    <button onclick="sendCommand('forward')">Forward</button><br>
+    <button onclick="sendCommand('left')">Left</button>
+    <button onclick="sendCommand('stop')">Stop</button>
+    <button onclick="sendCommand('right')">Right</button><br>
+    <button onclick="sendCommand('backward')">Backward</button>
+  </div>
+
+  <!-- Speed Slider -->
+  <div>
+    <label for="speedRange">Speed:</label><br>
+    <input type="range" id="speedRange" min="50" max="255" value="150" oninput="updateSpeed(this.value)">
+    <span id="speedValue">150</span>
+  </div>
+
+  <script>
+    // Replace with your ESP32 IP if not on same page hosting
+    const ESP32_IP = location.hostname; // works if served from ESP32
+
+    function sendCommand(cmd) {
+      // append speed value for forward/backward/turns if needed
+      fetch(`http://${ESP32_IP}/${cmd}?speed=${document.getElementById('speedRange').value}`)
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(err => console.error('Error:', err));
+    }
+
+    function updateSpeed(value) {
+      document.getElementById('speedValue').innerText = value;
+    }
+  </script>
+</body>
+</html>
